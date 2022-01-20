@@ -1,0 +1,96 @@
+{
+    "Item": {
+        "id": {
+            "Value": 5,
+            "ValuesType": "Int32",
+            "Column": 1,
+            "Row": null,
+            "Text": "Id",
+            "GroupName": null,
+            "Rules": null,
+            "ControlType": "TextField",
+            "List": null,
+            "Readonly": false,
+            "AvaiableValues": null
+        },
+        "name": {
+            "Value": "Anti Covid researchers",
+            "ValuesType": "String",
+            "Column": 1,
+            "Row": null,
+            "Text": "Hospital Name",
+            "GroupName": null,
+            "Rules": null,
+            "ControlType": "TextField",
+            "List": null,
+            "Readonly": false,
+            "AvaiableValues": null
+        },
+        "props1": {
+            "Value": "kenia luginino 47",
+            "ValuesType": "String",
+            "Column": 1,
+            "Row": null,
+            "Text": "Addres",
+            "GroupName": null,
+            "Rules": null,
+            "ControlType": "TextField",
+            "List": null,
+            "Readonly": false,
+            "AvaiableValues": null
+        },
+        "PropD1": {
+            "Value": "2022-01-27T00:00:00",
+            "ValuesType": "DateTime",
+            "Column": 1,
+            "Row": null,
+            "Text": "AnyDate",
+            "GroupName": null,
+            "Rules": null,
+            "ControlType": "TextField",
+            "List": null,
+            "Readonly": false,
+            "AvaiableValues": null
+        },
+        "PropN1": {
+            "Value": 5.00000,
+            "ValuesType": "Decimal",
+            "Column": 1,
+            "Row": null,
+            "Text": "AnyNumber",
+            "GroupName": null,
+            "Rules": null,
+            "ControlType": "TextField",
+            "List": null,
+            "Readonly": false,
+            "AvaiableValues": null
+        },
+        "Prop1": {
+            "Value": 10660,
+            "ValuesType": "Int32",
+            "Column": 1,
+            "Row": null,
+            "Text": "UList",
+            "GroupName": null,
+            "Rules": null,
+            "ControlType": "TextField",
+            "List": null,
+            "Readonly": false,
+            "AvaiableValues": [
+                {
+                    "Id": 10658,
+                    "Name": "UCD267"
+                },
+                {
+                    "Id": 10660,
+                    "Name": "UCD333"
+                },
+                {
+                    "Id": 10657,
+                    "Name": "UCD347"
+                }
+            ]
+        }
+    },
+    "Errors": []
+}
