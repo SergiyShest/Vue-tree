@@ -403,4 +403,5 @@ body {
 		display: flex !important;
 		align-items: center !important;
 		margin: 5px;
+  }
 </style>
