@@ -17,6 +17,7 @@
 </template>
 
 <script>
+
 import tree from "./data.js";
 import { getEmptyTree, getFilledTree } from "./ArrayFunctions.js";
 
@@ -44,7 +45,5 @@ export default {
 html,
 body {
   height: 100%;
-  font-family: "Roboto";
 }
-
 </style>
