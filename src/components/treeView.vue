@@ -1,15 +1,17 @@
 <template>
-  <v-card class="mx-auto" max-width="500" max-height="1000">
-    <vue-simple-context-menu
-      :elementId="'myContextMeny'"
+<div>
+  
+
+    <v-card class="mx-auto" max-width="500" max-height="1000">
+       <vue-simple-context-menu
+      :elementId="'myContextMenu'"
       :options="contextMenuItems"
       :ref="'contextMenu'"
       @option-clicked="contextMenuClicked"
-    >
-    </vue-simple-context-menu>
+    > </vue-simple-context-menu>
     <v-card-title>
       <v-row justify="space-between" align="center">
-        {{title}}
+        {{ title }}
         <v-checkbox
           v-model="openAll"
           v-on:change="openFilledChanged"
@@ -27,50 +29,47 @@
         open-on-click
       >
         <template v-slot:prepend="{ item, open }">
-          <drag
-            @contextmenu.prevent.stop="handleContextMenu($event, item)"
-            v-if="CanMove(item)"
-            class="dragCl"
-            :data="item"
-            key="item.Id"
-            @cut="removeContent(item)"
-          >
-            <img
-              :src="require('@/assets/images/' + getSrc(item, open))"
-              height="32px"
-              width="32px"
-            />
-          </drag>
-           <div  v-else>
-                       <drop @contextmenu.prevent.stop="handleContextMenu($event, item)"
-                        :id="item.Id"
-                        v-if="CanBeDropTarget(item)"
-                        class="dropCl"
-                        @drop="onDrop($event, item)"
-                        mode="cut"
-                      >
-                        <img
-                          :src="
-                            require('@/assets/images/' + getSrc(item, open))
-                          "
-                          height="32px"
-                          width="32px"
-                        />
-                        <div v-if="item.Content.length > 0">
-                          <v-icon> mdi-code-json </v-icon>
-                        </div>
-                      </drop>
+        <v-row style="align-items:center" 						 > 
+							<div  	>
+								<drag v-if="CanMove(item)" 
+                    @contextmenu.prevent.stop="handleContextMenu($event, item)"
+									  class="dragCl"
+									  :data="item"
+									  key="item.Id"
+									  @cut="removeContent(item)">
+									<img :src="require('@/assets/images/' + getSrc(item, open))"
+										 height="32px"
+										 width="32px" />
 
-          <img
-            v-else
-            :src="require('@/assets/images/' + getSrc(item, open))"
-            height="32px"
-            width="32px"
-          /></div>
+								</drag>
+								<div v-else @contextmenu.prevent.stop="handleContextMenu($event, item)" >
+									<drop :id="item.Id"
+										  v-if="CanBeDropTarget(item)"
+										  class="dropCl"
+										  @drop="onDrop($event, item)"
+										  mode="cut">
+										<img :src="require('@/assets/images/' + getSrc(item, open))"
+											 height="32px"
+											 width="32px" />
+										<div v-if="item.Content.length > 0">
+											<v-icon> mdi-code-json </v-icon>
+										</div>
+									</drop>
+
+									<img v-else
+										 :src="require('@/assets/images/' + getSrc(item, open))"
+										 height="32px"
+										 width="32px" />
+								</div>
+							</div>
+							<div style="margin-left:3px;  font-weight :bold">{{item.Name}}</div>
+							<div v-if="item.Content.length>0">-->{{item.Content.length}}</div>
+						</v-row>
         </template>
       </v-treeview>
     </v-card-text>
   </v-card>
+  </div>
 </template>
 
 <script>
@@ -84,7 +83,7 @@ export default {
     Drop,
     VueSimpleContextMenu,
   },
-  props: ["items","title"],
+  props: ["items", "title"],
   data: () => ({
     searchText: null,
     search: null,
@@ -114,7 +113,18 @@ export default {
       this.$refs.treeView.updateAll(this.openAll);
     },
     handleContextMenu(event, item) {
+      console.log(event);
+      console.log('pageX='+event.pageX);
+      console.log('clientX='+event.clientX);
+      console.log('screenX='+event.screenX); 
+      console.log('x='+event.x); 
+      console.log('offsetX='+event.offsetX);                  
+
       this.$refs.contextMenu.showMenu(event, item);
+     
+ //     console.log('tree.offsetLeft'+tree.offsetLeft);   
+ //     menu.style.left = event.pageX-menu.parentElement.offsetLeft - 2 + "px";
+//      console.log('menu.style.left='+menu.style.left);        
     },
     contextMenuClicked(event) {
       switch (event.option.slug) {
@@ -150,7 +160,6 @@ export default {
         if (/Shelf/.test(item.name)) {
           return this.HasContent(item);
         }
-  
       }
       return false;
     },
@@ -189,7 +198,8 @@ export default {
     },
   },
   mounted: function () {
-    // this.initItems();
+     var menu = document.getElementById('myContextMenu');
+      document.firstElementChild.appendChild(menu);       
   },
 };
 </script>
@@ -214,7 +224,7 @@ body {
 
 .dropCl {
   margin: 20px 10px;
-  
+
   width: 30px;
   height: 30px;
   display: inline-block;
@@ -245,7 +255,7 @@ body {
 
 .vue-simple-context-menu {
   top: 0;
-  left: -200;
+  left: 0px;
   margin: 0, 0;
   padding: 0, 0;
   display: none;
@@ -270,7 +280,7 @@ body {
   color: black;
   cursor: pointer;
   padding: 13px, 6px;
-  margin-left: -10px;
+  margin-left: 10px;
   margin-right: 5px;
   align-items: center;
 }
