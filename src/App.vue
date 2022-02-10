@@ -6,19 +6,22 @@
     <div style="width: 300px;background:grey" >300</div>     -->
     <v-app id="app" style="height: 500px;">
 			<v-container  style="height: 500px;">
-             <location-tree-view
-              :items="initialTreeItems"
-              title="Location tree"
-              @refresh="loadTree"
-               contentMenuId="contentMenuFilled"
-            />
-        <!-- <v-row style="flex-grow:0" no-gutters >
+
+       <v-row style="flex-grow:0" no-gutters >
           <v-col>
-             <tree-view :items="filledItems" title="Only filled shelfs"  id="tree1" />
+             <location-tree-view
+              onlyFilled=true
+              :tree="initialTree"
+              @refresh="loadTree"
+            />
           </v-col>
           <v-divider vertical></v-divider>
           <v-col >
-              <tree-view :items="emptyItems"  title="Only empty shelfs"/>
+              <location-tree-view
+              onlyEmpty=false              
+              :tree="initialTree"
+              @refresh="loadTree"
+            />
           </v-col>
         </v-row> -->
       	</v-container>  
@@ -33,7 +36,6 @@
 
 <script>
 import tree from "./data.js";
-import { getEmptyTree, getFilledTree } from "./components/ArrayFunctions.js";
 import LocationTreeView from "./components/LocationTreeView.vue";
 //import treeView from "./components/treeView.vue";
 export default {
@@ -44,9 +46,8 @@ export default {
   },
 
   data: () => ({
-    initialTreeItems:tree.children,
-    emptyItems: getEmptyTree(tree).children,
-    filledItems: getFilledTree(tree).children,
+    initialTree:tree,
+
   }),
 
   methods: {

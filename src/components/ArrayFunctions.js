@@ -93,6 +93,8 @@ function RemoveFilled(item) {
 
 }
 
+
+
 function arrayRemove(arr, value) {
 
   return arr.filter(function (ele) {
@@ -135,7 +137,8 @@ function getFiltredItems(items, filterString,predicatFunction) {
 }
 
 function nameFunction(item,filterString){
-  return item.Name.includes(filterString);
+
+  return item.Name.toLowerCase().includes(filterString.toLowerCase());
 }
 
 
@@ -153,8 +156,6 @@ export   function getFiltredTree(items, filterString) {
    
 
   }
-
-
 
   export function getEmptyTree(tree) {
     var cloneTree = Clone(tree);
