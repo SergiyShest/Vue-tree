@@ -1,98 +1,49 @@
-<div id="app">
-  <v-app id="inspire">
-    <v-treeview
-      v-model="tree"
-      :open="initiallyOpen"
-      :items="items"
-      activatable
-      item-key="name"
-      open-on-click
-    >
-      <template v-slot:prepend="{ item, open }">
-        <v-icon v-if="!item.file">
-          {{ open ? 'mdi-folder-open' : 'mdi-folder' }}
-        </v-icon>
-        <v-icon v-else>
-          {{ files[item.file] }}
-        </v-icon>
-      </template>
-    </v-treeview>
-  </v-app>
-</div>
+<template>
+  <div id="app">
+    <v-app id="inspire">
+       <v-container>
+        <v-row>
+          <v-col>
+             <tree-view :items="filledItems" title="Only filled shelfs"/>
+          </v-col>
+          <v-divider vertical></v-divider>
+          <v-col class="pa-6" cols="6">
+              <tree-view :items="emptyItems"  title="Only empty shelfs"/>
+          </v-col>
+        </v-row>
+      </v-container>
+    </v-app>
+  </div>
+</template>
 
 <script>
 
+import tree from "./data.js";
+import { getEmptyTree, getFilledTree } from "./ArrayFunctions.js";
+
+import treeView from "./components/treeView.vue"
 export default {
   name: "App",
-  vuetify: new Vuetify(),
+  components: {
+    treeView
+  },
 
   data: () => ({
-    initiallyOpen: ['public'],
-    files: {
-      html: 'mdi-language-html5',
-      js: 'mdi-nodejs',
-      json: 'mdi-code-json',
-      md: 'mdi-language-markdown',
-      pdf: 'mdi-file-pdf',
-      png: 'mdi-file-image',
-      txt: 'mdi-file-document-outline',
-      xls: 'mdi-file-excel',
-    },
-    tree: [],
-    items: [
-      {
-        name: '.git',
-      },
-      {
-        name: 'node_modules',
-      },
-      {
-        name: 'public',
-        children: [
-          {
-            name: 'static',
-            children: [{
-              name: 'logo.png',
-              file: 'png',
-            }],
-          },
-          {
-            name: 'favicon.ico',
-            file: 'png',
-          },
-          {
-            name: 'index.html',
-            file: 'html',
-          },
-        ],
-      },
-      {
-        name: '.gitignore',
-        file: 'txt',
-      },
-      {
-        name: 'babel.config.js',
-        file: 'js',
-      },
-      {
-        name: 'package.json',
-        file: 'json',
-      },
-      {
-        name: 'README.md',
-        file: 'md',
-      },
-      {
-        name: 'vue.config.js',
-        file: 'js',
-      },
-      {
-        name: 'yarn.lock',
-        file: 'txt',
-      },
-    ],
-  })
+    emptyItems: getEmptyTree(tree).children,
+    filledItems: getFilledTree(tree).children,
+  }),
+ 
+  methods: {
 
-
+  },
+  mounted: function () {
+    // this.initItems();
+  },
 };
 </script>
+<style>
+html,
+body {
+  height: 100%;
+}
+</style>

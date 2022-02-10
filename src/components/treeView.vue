@@ -120,7 +120,7 @@ export default {
       },
       {
         name: "Add",
-        slug: "Add",
+        slug: "add",
       },
     ],
   }),
@@ -136,13 +136,13 @@ export default {
     contextMenuClicked(event) {
       switch (event.option.slug) {
         case "clear":
-          console.log(event.option.name);
+          console.log(event.item.name);
           break;
         case "show":
-          console.log(event.option.name);
+          console.log(event.item.name);
           break;
         case "add":
-          console.log(event.option.name);
+          console.log(event.item.name);
           break;
       }
     },
