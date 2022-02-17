@@ -8,16 +8,17 @@
     >
     </vue-simple-context-menu>
 
-    <v-dialog v-model="addNodeDialog">
-      <v-card style="background-color: #ccc" width="400">
-        <v-card-title class="headline">Add Node for </v-card-title>
-        <v-combobox
+    <v-dialog v-model="addNodeDialog" width="400">
+      <v-card raised style="padding: 5px; border: 4px double black">
+        <v-card-title class="headline"
+          >Add Node for "{{ ParentNodeName }}"</v-card-title
+        >
+        <v-text-field
           v-model="newNodeName"
-          :items="RecommendedNodeNames"
           label="Input name pleace"
           outlined
           dense
-        ></v-combobox>
+        ></v-text-field>
 
         <v-card-actions>
           <v-spacer></v-spacer>
@@ -28,7 +29,25 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
+    <v-dialog v-model="renameDialog" width="400">
+      <v-card raised style="padding: 5px; border: 4px double black">
+        <v-card-title class="headline">Rename </v-card-title>
+        <v-text-field
+          v-model="newNodeName"
+          label="Rename name pleace"
+          outlined
+          dense
+        ></v-text-field>
 
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn color="greey darken-1" @click="Rename()">Ok</v-btn>
+          <v-btn color="greey darken-1" @click.native="renameDialog = false"
+            >Cancel</v-btn
+          >
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
     <v-card>
       <v-card-subtitle>
         <v-col>
@@ -51,12 +70,12 @@
             <v-checkbox
               v-model="onlyFilled"
               v-on:change="onlyFilledChanged"
-              label="only Filled"
+              label="only filled"
             />
             <v-checkbox
               v-model="openAll"
               v-on:change="openAllChanged"
-              label="Open all"
+              label="open all"
             />
           </v-row>
           <v-text-field
@@ -67,7 +86,7 @@
         </v-col>
       </v-card-subtitle>
       <v-card-text>
-		  <div class="text" v-if="dragInProgress">Drag in progress : </div>
+        <div class="text" v-if="dragInProgress">Drag in progress :</div>
         <v-treeview
           style="height: 80vh; overflow-y: auto"
           :items="filtredItems"
@@ -110,11 +129,7 @@
                       height="32px"
                       width="32px"
                     />
-                    <div v-if="item.Content.length > 0">
-                      <v-icon> mdi-code-json </v-icon>
-                    </div>
                   </drop>
-
                   <img
                     v-else
                     :src="require('@/assets/images/' + getSrc(item, open))"
@@ -126,8 +141,8 @@
               <div style="margin-left: 3px; font-weight: bold">
                 {{ item.Name }}
               </div>
-              <div v-if="item.Content.length > 0">
-                -->{{ item.Content.length }}
+              <div v-if="item.AllContentCount > 0">
+                -->{{ item.AllContentCount }}
               </div>
             </v-row>
           </template>
@@ -138,6 +153,7 @@
 </template>
 
 <script>
+const varName = "jjj";
 import { Drag, Drop, DragAwareMixin } from "vue-easy-dnd";
 import VueSimpleContextMenu from "vue-simple-context-menu";
 import { baseMixin } from "./BaseMixin.js";
@@ -148,47 +164,102 @@ import {
   generateGuid,
 } from "./ArrayFunctions.js";
 export default {
-  mixins: [baseMixin,DragAwareMixin],
+  mixins: [baseMixin, DragAwareMixin],
   name: "LocationTreeView",
   components: {
     Drag,
     Drop,
     VueSimpleContextMenu,
   },
-  props: ["tree", "title", "onlyEmpty","onlyFilled"],
+  props: [
+    "treeNum",
+    "initialTree",
+    "title"
+  ],
   data: () => ({
-    addNodeDialog: false,
-    RecommendedNodeNames: ["Shelf", "Rack", "Row"],
+    ParentNodeName: "",
     newNodeName: "",
     editItem: null,
+    addNodeDialog: false,
+    renameDialog: false,
+    locationSource: null,
+    locationTarget: null,
     openAll: false,
     contentMenuId: generateGuid(),
     contextMenuItems: [],
     filterString: "",
+    onlyEmpty: false,
+    onlyFilled: false,
   }),
   computed: {
+    // onlyEmpty:
+    // {
+    //   get:function () {
+    //       var savedVal= localStorage.getItem('onlyEmpty'+this.treeNum);
+    //       if(savedVal!=null)return savedVal;
+    //       return this.intitalOnlyEmpty;
+    //   },
+    //   set:function (newValue) {
+
+    //       localStorage.getItem('onlyEmpty'+this.treeNum,newValue);
+    //   }
+    // },
+    // onlyFilled:
+    // {
+    //   get:function () {
+    //       var savedVal= localStorage.getItem('onlyFilled'+this.treeNum);
+    //       if(savedVal!=null)return savedVal;
+    //       return this.intitalOnlyFilled;
+    //   },
+    //   set:function (newValue) {
+    //       localStorage.getItem('onlyFilled'+this.treeNum,newValue);
+    //   }
+    // }
+    //   ,
+    RecommendedNodeName() {
+      if (this.editItem) {
+        if (this.editItem.Code == "FREEZER") {
+          return "Shelf ";
+        }
+
+        if (this.editItem.Code == "SHELF") {
+          return "Rack ";
+        }
+        if (this.editItem.Code == "RACK") {
+          return "Row ";
+        }
+      }
+      return "new node name";
+    },
     filtredItems() {
-      let _tree = this.tree;
+      if (!this.initialTree.Name) return [];
+      let _tree = this.initialTree;
+
       if (this.onlyEmpty) {
-        _tree = getEmptyTree(this.tree);
+        _tree = getEmptyTree(this.initialTree);
       }
       if (this.onlyFilled) {
-        _tree = getFilledTree(this.tree);
+        _tree = getFilledTree(this.initialTree);
       }
       let filtred = _tree.children;
       if (this.filterString) {
+        localStorage.setItem("filterString" + this.treeNum, this.filterString);
         filtred = getFiltredTree(_tree.children, this.filterString);
+        this.$nextTick(function () {
+          this.$refs.treeView.updateAll(true);
+         });
       }
-
       return filtred;
     },
   },
   methods: {
     onlyEmptyChanged() {
       if (this.onlyEmpty) this.onlyFilled = false;
+      //localStorage.setItem("onlyEmpty" + this.treeNum, this.onlyEmpty);
     },
     onlyFilledChanged() {
       if (this.onlyFilled) this.onlyEmpty = false;
+      //localStorage.setItem("onlyFilled" + this.treeNum, this.onlyFilled);
     },
     openAllChanged() {
       this.$refs.treeView.updateAll(this.openAll);
@@ -205,12 +276,19 @@ export default {
         options.push({ name: "Clear all samples", slug: "clear" });
         options.push({ name: "Show all samples", slug: "showSamples" });
       }
-      if (/Row/.test(item.Name)) {
+      if (item.Code == "ROW") {
         options.push({ name: "Add samples", slug: "addSamples" });
       }
-      //				if (/Shelf/.test(item.Name) || /Rack/.test(item.Name)) {
-      options.push({ name: "Add Chaild", slug: "addChaild" });
-      //				}
+      if (item.Code == "FREEZER") {
+        options.push({ name: "Add Shelf", slug: "addChaild" });
+      }
+      if (item.Code == "SHELF") {
+        options.push({ name: "Add Rack", slug: "addChaild" });
+      }
+      if (item.Code == "RACK") {
+        options.push({ name: "Add ROW", slug: "addChaild" });
+      }
+      options.push({ name: "Rename", slug: "rename" });
 
       return options;
     },
@@ -233,32 +311,37 @@ export default {
           AddSamples(event.item);
           break;
         case "addChaild":
-          this.addChaild(event.item);
+          this.ShowAddChaildDialog(event.item);
+          break;
+        case "rename":
+          this.ShowRenameDialog(event.item);
           break;
       }
     },
     //get part of image
     getSrc(item, empty) {
       var img = "folder.png";
-      if (/Freezer/.test(item.Name)) img = "refrigerator.png";
-      if (/Refreger/.test(item.Name)) img = "refrigerator.png";	  
-      if (/Shelf/.test(item.Name)) {
+
+      if (item.Code == "FREEZER") img = "refrigerator.png";
+      if (item.Code == "SHELF") {
         if (this.HasContent(item)) {
           img = "shelf.png";
         } else {
           img = "shelfEmpty.png";
         }
       }
-
-      if (/Rack/.test(item.Name)) img = "Rows.png";
-      if (/Row/.test(item.Name)) img = "row.png";
+      if (item.Code == "ROOM") img = "room.png";
+      if (item.Code == "RACK") img = "Rows.png";
+      if (item.Code == "ROW") img = "row.png";
       return img;
     },
     clear(item) {
       this.fetch(this.ok, "/Location/EditLocation/Clear?locationId=" + item.Id);
     },
-    addChaild(item) {
+    ShowAddChaildDialog(item) {
       this.editItem = item;
+      this.ParentNodeName = this.editItem.Name;
+      this.newNodeName = this.RecommendedNodeName;
       this.addNodeDialog = true;
     },
     AddNewNode() {
@@ -266,6 +349,21 @@ export default {
       this.fetch(
         this.ok,
         "/Location/EditLocation/addChaild?locationId=" +
+          this.editItem.Id +
+          "&name=" +
+          this.newNodeName
+      );
+    },
+    ShowRenameDialog(item) {
+      this.editItem = item;
+      this.newNodeName = this.editItem.Name;
+      this.renameDialog = true;
+    },
+    Rename() {
+      this.renameDialog = false;
+      this.fetch(
+        this.ok,
+        "/Location/EditLocation/Rename?locationId=" +
           this.editItem.Id +
           "&name=" +
           this.newNodeName
@@ -284,11 +382,7 @@ export default {
     },
     CanMove(item) {
       if (item) {
-        if (
-          /Shelf/.test(item.Name) ||
-          /Rack/.test(item.Name) ||
-          /Row/.test(item.Name)
-        ) {
+        if (item.Code == "ROW" || item.Code == "RACK" || item.Code == "SHELF") {
           var s = this.HasContent(item);
           //						if(s) console.log(item.Name)
           return s;
@@ -299,25 +393,20 @@ export default {
     },
     CanBeDropTarget(item) {
       if (this.dragInProgress)
-      if (item)
-	   {
-        if (/Shelf/.test(this.dragData.Name)) {
-        if (/Shelf/.test(item.Path)) return false;
-          return true;
-          return !this.HasContent(item);
+        if (item) {
+          if (this.dragData.Code == "SHELF" && item.Code == "FREEZER") {
+            return true;
+          }
+          if (this.dragData.Code == "RACK" && item.Code == "SHELF") {
+            return true;
+          }
+          if (this.dragData.Code == "ROW" && item.Code == "RACK") {
+            return true;
+          }
         }
-        if (/Rack/.test(this.dragData.Name)) {
-        if (/Shelf/.test(item.Name)) return true;
-        }	
-	    if (/Row/.test(this.dragData.Name)) {
-        if (/Rack/.test(item.Name)) return true;
-        }		
-		
-      }
       return false;
     },
     onDrop(e, item) {
-      console.log(e.data.Id);
       this.fetch(
         this.ok,
         "/Location/EditLocation/Drop?targetLocationId=" +
@@ -326,6 +415,7 @@ export default {
           e.data.Id
       );
     },
+    changeLocation() {},
     HasContent(item) {
       if (item.Content.length > 0) {
         return true;
@@ -340,18 +430,39 @@ export default {
     },
   },
   mounted: function () {
+    window.globalEvent.$on(varName, (locationId, ids) => {
+      this.fetch(
+        this.ok,
+        "/Location/EditLocation/AddSamples?locationId=" +
+          locationId +
+          "&ids=" +
+          ids
+      );
+    });
     //replace menu in visual root
     var menu = document.getElementById(this.contentMenuId);
     document.firstElementChild.appendChild(menu);
+
+    // var savedVal = localStorage.getItem("onlyEmpty" + this.treeNum);
+    // if (savedVal != null) {
+    //   this.onlyEmpty = savedVal;
+    // } else {
+    //   this.onlyEmpty = this.intitalOnlyEmpty;
+    // }
+    //  savedVal = localStorage.getItem("onlyFilled" + this.treeNum);
+    // if (savedVal != null) {
+    //   this.onlyFilled = savedVal;
+    // } else {
+    //   this.onlyFilled = this.intitalOnlyFilled;
+    // }
+    var savedVal = localStorage.getItem("filterString" + this.treeNum);
+    if (savedVal != null) {
+      this.filterString = savedVal;
+    }
   },
 };
 </script>
 <style>
-html,
-body {
-  height: 100%;
-}
-
 .dragCl {
   width: 40px;
   height: 30px;
@@ -382,17 +493,18 @@ body {
 }
 
 .drop-in {
-  box-shadow: 0 0 5px rgba(0, 0, 255, 0.4);
+  box-shadow: 0 1 15px rgba(0, 0, 255, 0.4);
+  background-color: rgba(8, 250, 8, 0.8);
 }
 
-.list-enter,
+/* .list-enter,
 .list-leave-to {
   opacity: 0;
 }
 
 .list-leave-active {
   position: absolute;
-}
+} */
 
 .vue-simple-context-menu {
   top: 0;
@@ -403,7 +515,7 @@ body {
   list-style: none;
   position: absolute;
   z-index: 1000000;
-  background-color: lightblue;
+  background-color: rgb(202, 210, 212);
   border-bottom-width: 0px;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen",
     "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue",
@@ -421,7 +533,7 @@ body {
   color: black;
   height: 25px;
   cursor: pointer;
-  padding: 13px, 6px;
+  padding: 3px, 6px;
   margin-left: 5px;
   margin-right: 5px;
   align-items: center;
@@ -441,12 +553,12 @@ body {
   pointer-events: none;
 }
 
-.v-text-field--box .v-input__control .v-input__slot,
+/* .v-text-field--box .v-input__control .v-input__slot,
 .v-text-field--outline .v-input__control .v-input__slot,
 .v-text-field .v-input__control .v-input__slot {
-  min-height: 20px;
+  min-height: 25px;
   display: flex !important;
   align-items: center !important;
   margin: 2px;
-}
+} */
 </style>

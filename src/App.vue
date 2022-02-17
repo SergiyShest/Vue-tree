@@ -1,57 +1,47 @@
 <template>
+  <v-app id="app">
 
-
-    <!-- <div style="width: 100px;background:red" >100</div>
-    <div style="width: 200px;background:green" >200</div>
-    <div style="width: 300px;background:grey" >300</div>     -->
-    <v-app id="app" style="height: 500px;">
-			<v-container  style="height: 500px;">
+    <v-container fluid> 
 
        <v-row style="flex-grow:0" no-gutters >
           <v-col>
              <location-tree-view
-              onlyFilled=true
-              :tree="initialTree"
+              :treeNum="1"
+              :initialTree="initialTree"
               @refresh="loadTree"
             />
           </v-col>
           <v-divider vertical></v-divider>
           <v-col >
               <location-tree-view
-              onlyEmpty=false              
-              :tree="initialTree"
+              :treeNum="2"
+        
+              :initialTree="initialTree"
               @refresh="loadTree"
             />
           </v-col>
-        </v-row> -->
-      	</v-container>  
-       <v-footer fixed class="white d-flex justify-end">
-				<v-btn class="ma-2" @click="Save(true,true)">Save</v-btn>
-				<v-btn class="ma-2" @click="Reload()">Revent changes</v-btn>
-			</v-footer>
+        </v-row>
+ 	</v-container>  
+    </v-app> 
 
-	
-	</v-app>
 </template>
 
 <script>
+
 import tree from "./data.js";
-import LocationTreeView from "./components/LocationTreeView.vue";
-//import treeView from "./components/treeView.vue";
+import LocationTreeView from "./components/LocationTreeView.vue"
 export default {
   name: "App",
   components: {
- //   treeView,
- 	  LocationTreeView,   
+    LocationTreeView
   },
 
   data: () => ({
-    initialTree:tree,
-
+    initialTree: tree,
   }),
-
+ 
   methods: {
-    loadTree(){}
+loadTree(){}
   },
   mounted: function () {
     // this.initItems();

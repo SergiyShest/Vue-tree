@@ -9,6 +9,7 @@ Vue.component("image-icon", {
   props: ["imgsrc"]
 });
 
+
 window.globalEvent = new Vue();
 new Vue({
   vuetify,
