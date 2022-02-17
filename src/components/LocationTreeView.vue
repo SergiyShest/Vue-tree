@@ -49,43 +49,44 @@
       </v-card>
     </v-dialog>
     <v-card>
-      <v-card-subtitle>
-        <v-col>
-          <v-row
-            justify="space-between"
-            align="center"
-            style="
-              background-color: linear-gradient(
-                #33ccff 0%,
-                #ff99cc 100%
-              ) !important;
-            "
-          >
-            {{ title }}
-            <v-checkbox
-              v-model="onlyEmpty"
-              v-on:change="onlyEmptyChanged"
-              label="only empty"
-            />
-            <v-checkbox
-              v-model="onlyFilled"
-              v-on:change="onlyFilledChanged"
-              label="only filled"
-            />
-            <v-checkbox
-              v-model="openAll"
-              v-on:change="openAllChanged"
-              label="open all"
-            />
-          </v-row>
-          <v-text-field
-            v-model="filterString"
-            outlined
-            label="filter by location name"
-          />
-        </v-col>
-      </v-card-subtitle>
       <v-card-text>
+        <!-- <v-card-subtitle> 
+        <v-col>-->
+        <v-row
+          justify="space-between"
+          align="center"
+          style="
+            background-color: linear-gradient(
+              #33ccff 0%,
+              #ff99cc 100%
+            ) !important;
+          "
+        >
+          {{ title }}
+          <v-checkbox
+            v-model="onlyEmpty"
+            v-on:change="onlyEmptyChanged"
+            label="only empty"
+          />
+          <v-checkbox
+            v-model="onlyFilled"
+            v-on:change="onlyFilledChanged"
+            label="only filled"
+          />
+          <v-checkbox
+            v-model="openAll"
+            v-on:change="openAllChanged"
+            label="open all"
+          />
+        </v-row>
+        <v-text-field
+          v-model="filterString"
+          outlined
+          label="filter by location name"
+        />
+        <!--  </v-col>
+       </v-card-subtitle> -->
+
         <div class="text" v-if="dragInProgress">Drag in progress :</div>
         <v-treeview
           style="height: 80vh; overflow-y: auto"
@@ -96,15 +97,17 @@
           open-on-click
         >
           <template v-slot:prepend="{ item, open }">
-            <v-row style="align-items: center">
-              <div style="margin-right: 3px; font-weight: bold">
+            <v-row
+              style="align-items: center;"
+              @contextmenu.prevent.stop="handleContextMenu($event, item)"
+            >
+              <!-- <div style="margin-right: 3px; font-weight: bold">
                 {{ item.Id }}
-              </div>
+              </div> -->
               <div>
                 <drag
                   v-if="CanMove(item)"
-                  @contextmenu.prevent.stop="handleContextMenu($event, item)"
-                  class="dragCl"
+                  class="dragCl treeNode"
                   :data="item"
                   key="item.Id"
                 >
@@ -113,15 +116,15 @@
                     height="32px"
                     width="32px"
                   />
+                  <div style="margin-left: 3px; font-weight: bold">
+                    {{ item.Name }}
+                  </div>
                 </drag>
-                <div
-                  v-else
-                  @contextmenu.prevent.stop="handleContextMenu($event, item)"
-                >
+                <div v-else>
                   <drop
                     :id="item.Id"
                     v-if="CanBeDropTarget(item)"
-                    class="dropCl"
+                    class="dropCl treeNode"
                     @drop="onDrop($event, item)"
                   >
                     <img
@@ -129,20 +132,25 @@
                       height="32px"
                       width="32px"
                     />
+                    <div style="margin-left: 3px; font-weight: bold;">
+                      {{ item.Name }}
+                    </div>
                   </drop>
-                  <img
-                    v-else
-                    :src="require('@/assets/images/' + getSrc(item, open))"
-                    height="32px"
-                    width="32px"
-                  />
+                  <div v-else  class="treeNode" >
+                    <img
+                      :src="require('@/assets/images/' + getSrc(item, open))"
+                      height="32px"
+                      width="32px"
+                    />
+                    <div style="margin-left: 3px; font-weight: bold">
+                      {{ item.Name }}
+                    </div>
+                  </div>
                 </div>
               </div>
-              <div style="margin-left: 3px; font-weight: bold">
-                {{ item.Name }}
-              </div>
+
               <div v-if="item.AllContentCount > 0">
-                -->{{ item.AllContentCount }}
+                samples {{ item.AllContentCount }}
               </div>
             </v-row>
           </template>
@@ -153,7 +161,7 @@
 </template>
 
 <script>
-const varName = "jjj";
+const varName = "test";
 import { Drag, Drop, DragAwareMixin } from "vue-easy-dnd";
 import VueSimpleContextMenu from "vue-simple-context-menu";
 import { baseMixin } from "./BaseMixin.js";
@@ -171,11 +179,7 @@ export default {
     Drop,
     VueSimpleContextMenu,
   },
-  props: [
-    "treeNum",
-    "initialTree",
-    "title"
-  ],
+  props: ["treeNum", "initialTree", "title"],
   data: () => ({
     ParentNodeName: "",
     newNodeName: "",
@@ -192,30 +196,6 @@ export default {
     onlyFilled: false,
   }),
   computed: {
-    // onlyEmpty:
-    // {
-    //   get:function () {
-    //       var savedVal= localStorage.getItem('onlyEmpty'+this.treeNum);
-    //       if(savedVal!=null)return savedVal;
-    //       return this.intitalOnlyEmpty;
-    //   },
-    //   set:function (newValue) {
-
-    //       localStorage.getItem('onlyEmpty'+this.treeNum,newValue);
-    //   }
-    // },
-    // onlyFilled:
-    // {
-    //   get:function () {
-    //       var savedVal= localStorage.getItem('onlyFilled'+this.treeNum);
-    //       if(savedVal!=null)return savedVal;
-    //       return this.intitalOnlyFilled;
-    //   },
-    //   set:function (newValue) {
-    //       localStorage.getItem('onlyFilled'+this.treeNum,newValue);
-    //   }
-    // }
-    //   ,
     RecommendedNodeName() {
       if (this.editItem) {
         if (this.editItem.Code == "FREEZER") {
@@ -247,19 +227,18 @@ export default {
         filtred = getFiltredTree(_tree.children, this.filterString);
         this.$nextTick(function () {
           this.$refs.treeView.updateAll(true);
-         });
+        });
       }
+
       return filtred;
     },
   },
   methods: {
     onlyEmptyChanged() {
       if (this.onlyEmpty) this.onlyFilled = false;
-      //localStorage.setItem("onlyEmpty" + this.treeNum, this.onlyEmpty);
     },
     onlyFilledChanged() {
       if (this.onlyFilled) this.onlyEmpty = false;
-      //localStorage.setItem("onlyFilled" + this.treeNum, this.onlyFilled);
     },
     openAllChanged() {
       this.$refs.treeView.updateAll(this.openAll);
@@ -272,7 +251,8 @@ export default {
     // getting a menu depending on the item that is selected
     GetContextMenuItems(item) {
       let options = [];
-      if (this.HasContent(item)) {
+      var hasContent = this.HasContent(item);
+      if (hasContent) {
         options.push({ name: "Clear all samples", slug: "clear" });
         options.push({ name: "Show all samples", slug: "showSamples" });
       }
@@ -286,20 +266,26 @@ export default {
         options.push({ name: "Add Rack", slug: "addChaild" });
       }
       if (item.Code == "RACK") {
-        options.push({ name: "Add ROW", slug: "addChaild" });
+        options.push({ name: "Add Row", slug: "addChaild" });
       }
       options.push({ name: "Rename", slug: "rename" });
 
+      if (
+        !hasContent &&
+        (item.Code == "RACK" || item.Code == "SHELF" || item.Code == "ROW")
+      ) {
+        options.push({ name: "Delete " + item.Name, slug: "delete" });
+      }
       return options;
     },
     contextMenuClicked(event) {
       switch (event.option.slug) {
         case "clear":
-          var cl = this.clear;
+          var clear = this.clear;
           dxConfirm(
             'Are you sure to remove samples inside "' + event.item.Name + '"?'
           ).success(function () {
-            cl(event.item);
+            clear(event.item);
           });
           break;
         case "showSamples":
@@ -315,6 +301,18 @@ export default {
           break;
         case "rename":
           this.ShowRenameDialog(event.item);
+          break;
+        case "delete":
+          let del = this.DeleteNode;
+          let end = " and chaild nodes";
+          if (event.item.Code == "ROW") {
+            end = "";
+          }
+          dxConfirm(
+            'Are you sure to delete "' + event.item.Name + '"' + end + "?"
+          ).success(function () {
+            del(event.item);
+          });
           break;
       }
     },
@@ -369,15 +367,24 @@ export default {
           this.newNodeName
       );
     },
+    DeleteNode(item) {
+      this.renameDialog = false;
+      this.fetch(
+        this.ok,
+        "/Location/EditLocation/DeleteNode?locationId=" + item.Id
+      );
+    },
     ok(item) {
       this.editItem = null;
       if (item.Errors) {
         this.ShowErrors(val);
       } else {
         this.$emit("refresh");
+        this.PlayOk();
       }
       if (item.Item) {
-        this.ShowAlert(item.Item);
+        if (item.Item == "Ok") {
+        } else this.ShowAlert(item.Item);
       }
     },
     CanMove(item) {
@@ -463,25 +470,23 @@ export default {
 };
 </script>
 <style>
-.dragCl {
-  width: 40px;
-  height: 30px;
-  background-color: rgb(200, 220, 255);
-  display: inline-flex;
-  align-items: left;
+
+.treeNode{
+   height: 30px;
+   margin: 20px 10px;  
+   display: flex;
+  align-items: center;
   justify-content: left;
-  margin: 10px 10px 0 10px;
-  font-size: 20px;
+}
+
+
+.dragCl {
+  background-color: rgb(200, 220, 255);
   transition: all 0.5s;
 }
 
 .dropCl {
-  margin: 20px 10px;
-  width: 40px;
-  height: 30px;
-  display: inline-block;
   position: relative;
-  flex: 1;
 }
 
 .drop-allowed {
@@ -553,12 +558,12 @@ export default {
   pointer-events: none;
 }
 
-/* .v-text-field--box .v-input__control .v-input__slot,
+.v-text-field--box .v-input__control .v-input__slot,
 .v-text-field--outline .v-input__control .v-input__slot,
 .v-text-field .v-input__control .v-input__slot {
-  min-height: 25px;
+  min-height: 30px;
   display: flex !important;
   align-items: center !important;
   margin: 2px;
-} */
+}
 </style>
