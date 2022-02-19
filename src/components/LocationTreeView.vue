@@ -574,7 +574,10 @@ export default {
     if (savedVal != null) {
       this.filterString = savedVal;
     }
-    
+     savedVal = localStorage.getItem("barcodeFilterString" + this.treeNum);
+    if (savedVal != null) {
+      this.barcodeFilterString = savedVal;
+    }
   },
 };
 </script>
