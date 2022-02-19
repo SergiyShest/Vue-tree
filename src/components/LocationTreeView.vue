@@ -49,10 +49,35 @@
       </v-card>
     </v-dialog>
     <v-card>
-      <v-card-text>
-        <!-- <v-card-subtitle> 
-        <v-col>-->
-        <v-row
+      <v-expansion-panels v-model="showFilterPanel"  >  
+        <v-expansion-panel >
+          <v-expansion-panel-header>
+            <v-row
+              justify="space-between"
+              align="center"
+              style="
+                background-color: linear-gradient(
+                  #33ccff 0%,
+                  #ff99cc 100%
+                ) !important;
+              "
+            >
+              <div style="margin-right: 3px; font-weight: bold">
+                {{ title }}
+              </div>
+              <div v-if="filtrDiscr" >
+               Filtred:{{filtrDiscr}}
+              </div>              
+              <div style="margin-right: 13px; " v-if="showFilterPanel==0" >
+               hide filter
+              </div>  
+               <div style="margin-right: 13px; " v-else >
+               show filter
+              </div>               
+            </v-row>
+          </v-expansion-panel-header>
+          <v-expansion-panel-content>
+      <v-row
           justify="space-between"
           align="center"
           style="
@@ -62,7 +87,6 @@
             ) !important;
           "
         >
-          {{ title }}
           <v-checkbox
             v-model="onlyEmpty"
             v-on:change="onlyEmptyChanged"
@@ -79,15 +103,39 @@
             label="open all"
           />
         </v-row>
-        <v-text-field
-          v-model="filterString"
-          outlined
-          label="filter by location name"
-        />
-        <!--  </v-col>
-       </v-card-subtitle> -->
-
-        <div class="text" v-if="dragInProgress">Drag in progress :</div>
+        <v-row no-gutters>
+          <v-col cols="3" class="d-flex justify-start align-center">
+            <v-label>Location name:</v-label>
+          </v-col>
+          <v-col cols="8" class="shrink">
+            <v-text-field
+              elevation="1"
+              v-model="filterString"
+              outlined
+              hide-details="auto"
+            />
+          </v-col>
+        </v-row>
+        <v-row no-gutters>
+          <v-col cols="3" class="d-flex justify-start align-center">
+            <v-label>Barcode:</v-label>
+          </v-col>
+          <v-col cols="8" class="shrink">
+            <v-text-field
+              elevation="1"
+              v-model="barcodeFilterString"
+              outlined
+              hide-details="auto"
+            />
+          </v-col>
+        </v-row>
+          </v-expansion-panel-content>
+        </v-expansion-panel>
+      </v-expansion-panels>
+      <v-card-text>
+        <div style="margin-right: 3px; font-weight: bold" v-if="dragInProgress">
+          Drag in progress :
+        </div>
         <v-treeview
           style="height: 80vh; overflow-y: auto"
           :items="filtredItems"
@@ -98,12 +146,9 @@
         >
           <template v-slot:prepend="{ item, open }">
             <v-row
-              style="align-items: center;"
+              style="align-items: center"
               @contextmenu.prevent.stop="handleContextMenu($event, item)"
             >
-              <!-- <div style="margin-right: 3px; font-weight: bold">
-                {{ item.Id }}
-              </div> -->
               <div>
                 <drag
                   v-if="CanMove(item)"
@@ -132,11 +177,11 @@
                       height="32px"
                       width="32px"
                     />
-                    <div style="margin-left: 3px; font-weight: bold;">
+                    <div style="margin-left: 3px; font-weight: bold">
                       {{ item.Name }}
                     </div>
                   </drop>
-                  <div v-else  class="treeNode" >
+                  <div v-else class="treeNode">
                     <img
                       :src="require('@/assets/images/' + getSrc(item, open))"
                       height="32px"
@@ -148,9 +193,8 @@
                   </div>
                 </div>
               </div>
-
               <div v-if="item.AllContentCount > 0">
-                samples {{ item.AllContentCount }}
+                all samples {{ item.AllContentCount }}
               </div>
             </v-row>
           </template>
@@ -179,7 +223,29 @@ export default {
     Drop,
     VueSimpleContextMenu,
   },
-  props: ["treeNum", "initialTree", "title"],
+  props: {
+    treeNum: { type: [String, Number] },
+    initialTree: Object,
+    title: String,
+    movedTypes: {
+      type: Array,
+      default: function () {
+        return ["FREEZER", "SHELF", "RACK", "ROW"];
+      },
+    },
+    movedCondition: {
+      type: Function,
+      default: function (item) {
+        return true;
+      },
+    },
+    targetCondition: {
+      type: Function,
+      default: function (item) {
+        return false;
+      },
+    },
+  },
   data: () => ({
     ParentNodeName: "",
     newNodeName: "",
@@ -192,10 +258,28 @@ export default {
     contentMenuId: generateGuid(),
     contextMenuItems: [],
     filterString: "",
+    barcodeFilterString: "",
     onlyEmpty: false,
     onlyFilled: false,
+    showFilterPanel: null,
   }),
   computed: {
+   filtrDiscr(){
+   var fd=""
+   if(this.filterString){
+     fd+= " Locacion:"+this.filterString+";"
+   }
+    if(this.barcodeFilterString){
+     fd+= " Barkode:"+this.barcodeFilterString+";"
+   }  
+    if(this.onlyEmpty){
+     fd+= " Only empty;"
+   }     if(this.onlyFilled){
+     fd+= " Only filled;"
+   }
+   return fd;
+   }
+,
     RecommendedNodeName() {
       if (this.editItem) {
         if (this.editItem.Code == "FREEZER") {
@@ -223,17 +307,37 @@ export default {
       }
       let filtred = _tree.children;
       if (this.filterString) {
+         var filterString=this.filterString.toLowerCase();
         localStorage.setItem("filterString" + this.treeNum, this.filterString);
-        filtred = getFiltredTree(_tree.children, this.filterString);
+        filtred = getFiltredTree(filtred, filterString,this.nameFunction);
+       }  
+      if (this.barcodeFilterString) {
+        var barcodeFilterString=this.barcodeFilterString.toLowerCase();
+        localStorage.setItem("barcodeFilterString" + this.treeNum, this.barcodeFilterString);
+        filtred = getFiltredTree(filtred, barcodeFilterString,this.barcodeFunction);
+       }    
+      if(this.filterString||this.barcodeFilterString)
         this.$nextTick(function () {
           this.$refs.treeView.updateAll(true);
         });
-      }
-
       return filtred;
     },
   },
   methods: {
+  nameFunction(item,filterString){
+  return item.Name.toLowerCase().includes(filterString);
+  },
+  barcodeFunction(item,filterString){
+
+ for (const key in item.Content) {
+     const element = item.Content[key];
+    if(element.barcode.toLowerCase().includes(filterString)){
+      return true;
+    }
+
+ }
+  return false;
+  }, 
     onlyEmptyChanged() {
       if (this.onlyEmpty) this.onlyFilled = false;
     },
@@ -389,10 +493,9 @@ export default {
     },
     CanMove(item) {
       if (item) {
-        if (item.Code == "ROW" || item.Code == "RACK" || item.Code == "SHELF") {
-          var s = this.HasContent(item);
-          //						if(s) console.log(item.Name)
-          return s;
+        if (this.movedTypes.includes(item.Code)) {
+          var canMove = this.movedCondition(item);
+          return canMove;
         }
         return false;
       }
@@ -401,28 +504,32 @@ export default {
     CanBeDropTarget(item) {
       if (this.dragInProgress)
         if (item) {
-          if (this.dragData.Code == "SHELF" && item.Code == "FREEZER") {
-            return true;
-          }
-          if (this.dragData.Code == "RACK" && item.Code == "SHELF") {
-            return true;
-          }
-          if (this.dragData.Code == "ROW" && item.Code == "RACK") {
-            return true;
-          }
+          return this.targetCondition(this.dragData, item);
+          // if (this.dragData.Code == "SHELF" && item.Code == "FREEZER") {
+          //   return true;
+          // }
+          // if (this.dragData.Code == "RACK" && item.Code == "SHELF") {
+          //   return true;
+          // }
+          // if (this.dragData.Code == "ROW" && item.Code == "RACK") {
+          //   ret urn true;
+          // }
         }
       return false;
     },
     onDrop(e, item) {
-      this.fetch(
-        this.ok,
-        "/Location/EditLocation/Drop?targetLocationId=" +
-          item.Id +
-          "&sourceLocationId=" +
-          e.data.Id
-      );
+      this.changeLocation(e.data, item);
+      // this.fetch(
+      //   this.ok,
+      //   "/Location/EditLocation/Drop?targetLocationId=" +
+      //     item.Id +
+      //     "&sourceLocationId=" +
+      //     e.data.Id
+      // );
     },
-    changeLocation() {},
+    changeLocation(sourse, target) {
+      target.children.push(sourse);
+    },
     HasContent(item) {
       if (item.Content.length > 0) {
         return true;
@@ -462,23 +569,23 @@ export default {
     // } else {
     //   this.onlyFilled = this.intitalOnlyFilled;
     // }
-    var savedVal = localStorage.getItem("filterString" + this.treeNum);
+
+   var  savedVal = localStorage.getItem("filterString" + this.treeNum);
     if (savedVal != null) {
       this.filterString = savedVal;
     }
+    
   },
 };
 </script>
 <style>
-
-.treeNode{
-   height: 30px;
-   margin: 20px 10px;  
-   display: flex;
+.treeNode {
+  height: 30px;
+  margin: 20px 10px;
+  display: flex;
   align-items: center;
   justify-content: left;
 }
-
 
 .dragCl {
   background-color: rgb(200, 220, 255);
@@ -561,7 +668,7 @@ export default {
 .v-text-field--box .v-input__control .v-input__slot,
 .v-text-field--outline .v-input__control .v-input__slot,
 .v-text-field .v-input__control .v-input__slot {
-  min-height: 30px;
+  height: 20px;
   display: flex !important;
   align-items: center !important;
   margin: 2px;

@@ -7,6 +7,7 @@
           <v-col>
              <location-tree-view
               :treeNum="1"
+              title="Sourse:"
               :initialTree="initialTree"
               @refresh="loadTree"
             />
@@ -15,8 +16,10 @@
           <v-col >
               <location-tree-view
               :treeNum="2"
-        
+               title="Target:"
               :initialTree="initialTree"
+              :movedTypes="[]"
+              :targetCondition="targetCondition"
               @refresh="loadTree"
             />
           </v-col>
@@ -41,6 +44,17 @@ export default {
   }),
  
   methods: {
+ targetCondition(sourseItem,targetItem){
+     if (sourseItem.Code == "SHELF" && targetItem.Code == "FREEZER") {
+            return true;
+          }
+          if (sourseItem.Code == "RACK" && targetItem.Code == "SHELF") {
+            return true;
+          }
+          if (sourseItem.Code == "ROW" && targetItem.Code == "RACK") {
+            return true;
+          }
+ },   
 loadTree(){}
   },
   mounted: function () {

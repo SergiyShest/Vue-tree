@@ -101,6 +101,7 @@ function arrayRemove(arr, value) {
     return ele != value;
   });
 }
+// 
  function hasFiltredInChaild(items, filterString,predicatFunction) {
   for (let index = 0; index < items.length; index++) {
     const item = items[index];
@@ -129,34 +130,28 @@ function getFiltredItems(items, filterString,predicatFunction) {
     }
   }
   remItems.forEach(element => {
-  console.log("remove "+element.Name)
+ 
   items = arrayRemove(items,element);
 });
 
   return items;
 }
 
-function nameFunction(item,filterString){
+export   function getFiltredTree(items, filterString,predicatFunction) {
 
-  return item.Name.toLowerCase().includes(filterString.toLowerCase());
-}
-
-
-export   function getFiltredTree(items, filterString) {
-
-    if (hasFiltredInChaild(items, filterString,nameFunction)) {
+    if (hasFiltredInChaild(items, filterString,predicatFunction)) {
      
       var clonedItems = Clone(items);
-      return getFiltredItems(clonedItems, filterString,nameFunction);
+      return getFiltredItems(clonedItems, filterString,predicatFunction);
     }
     else {
       return []
     }
 
-   
-
   }
 
+
+  
   export function getEmptyTree(tree) {
     var cloneTree = Clone(tree);
     RemoveFilled(cloneTree)
