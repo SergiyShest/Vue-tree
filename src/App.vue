@@ -31,7 +31,7 @@
 
 <script>
 
-import tree from "./data.js";
+import {tree,tree2} from "./data.js";
 import LocationTreeView from "./components/LocationTreeView.vue"
 export default {
   name: "App",
@@ -40,7 +40,8 @@ export default {
   },
 
   data: () => ({
-    initialTree: tree,
+    initialTree: tree2,
+    
   }),
  
   methods: {

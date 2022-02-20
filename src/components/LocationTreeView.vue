@@ -49,8 +49,8 @@
       </v-card>
     </v-dialog>
     <v-card>
-      <v-expansion-panels v-model="showFilterPanel"  >  
-        <v-expansion-panel >
+      <v-expansion-panels v-model="showFilterPanel">
+        <v-expansion-panel>
           <v-expansion-panel-header>
             <v-row
               justify="space-between"
@@ -65,70 +65,66 @@
               <div style="margin-right: 3px; font-weight: bold">
                 {{ title }}
               </div>
-              <div v-if="filtrDiscr" >
-               Filtred:{{filtrDiscr}}
-              </div>              
-              <div style="margin-right: 13px; " v-if="showFilterPanel==0" >
-               hide filter
-              </div>  
-               <div style="margin-right: 13px; " v-else >
-               show filter
-              </div>               
+              <div v-if="filtrDiscr">Filtred:{{ filtrDiscr }}</div>
+              <div style="margin-right: 13px" v-if="showFilterPanel == 0">
+                hide filter
+              </div>
+              <div style="margin-right: 13px" v-else>show filter</div>
             </v-row>
           </v-expansion-panel-header>
           <v-expansion-panel-content>
-      <v-row
-          justify="space-between"
-          align="center"
-          style="
-            background-color: linear-gradient(
-              #33ccff 0%,
-              #ff99cc 100%
-            ) !important;
-          "
-        >
-          <v-checkbox
-            v-model="onlyEmpty"
-            v-on:change="onlyEmptyChanged"
-            label="only empty"
-          />
-          <v-checkbox
-            v-model="onlyFilled"
-            v-on:change="onlyFilledChanged"
-            label="only filled"
-          />
-          <v-checkbox
-            v-model="openAll"
-            v-on:change="openAllChanged"
-            label="open all"
-          />
-        </v-row>
-        <v-row no-gutters>
-          <v-col cols="3" class="d-flex justify-start align-center">
-            <v-label>Location name:</v-label>
-          </v-col>
-          <v-col cols="8" class="shrink">
-            <v-text-field
-              elevation="1"
-              v-model="filterString"
-              outlined
-              hide-details="auto"
-            />
-          </v-col>
-        </v-row>
-        <v-row no-gutters>
-          <v-col cols="3" class="d-flex justify-start align-center">
-            <v-label>Barcode:</v-label>
-          </v-col>
-          <v-col cols="8" class="shrink">
-            <v-text-field
-              elevation="1"
-              v-model="barcodeFilterString"
-              outlined
-              hide-details="auto"
-            />
-          </v-col>
-        </v-row>
+            <v-row
+              justify="space-between"
+              align="center"
+              style="
+                background-color: linear-gradient(
+                  #33ccff 0%,
+                  #ff99cc 100%
+                ) !important;
+              "
+            >
+              <v-checkbox
+                v-model="onlyEmpty"
+                v-on:change="onlyEmptyChanged"
+                label="only empty"
+              />
+              <v-checkbox
+                v-model="onlyFilled"
+                v-on:change="onlyFilledChanged"
+                label="only filled"
+              />
+              <v-checkbox
+                v-model="openAll"
+                v-on:change="openAllChanged"
+                label="open all"
+              />
+            </v-row>
+            <v-row no-gutters>
+              <v-col cols="3" class="d-flex justify-start align-center">
+                <v-label>Location name:</v-label>
+              </v-col>
+              <v-col cols="8" class="shrink">
+                <v-text-field
+                  elevation="1"
+                  v-model="filterString"
+                  outlined
+                  hide-details="auto"
+                />
+              </v-col>
+            </v-row>
+            <v-row no-gutters>
+              <v-col cols="3" class="d-flex justify-start align-center">
+                <v-label>Barcode:</v-label>
+              </v-col>
+              <v-col cols="8" class="shrink">
+                <v-text-field
+                  elevation="1"
+                  v-model="barcodeFilterString"
+                  outlined
+                  hide-details="auto"
+                />
+              </v-col>
+            </v-row>
           </v-expansion-panel-content>
         </v-expansion-panel>
       </v-expansion-panels>
@@ -158,8 +154,8 @@
                 >
                   <img
                     :src="require('@/assets/images/' + getSrc(item, open))"
-                    height="32px"
-                    width="32px"
+                    height="24px"
+                    width="24px"
                   />
                   <div style="margin-left: 3px; font-weight: bold">
                     {{ item.Name }}
@@ -174,8 +170,8 @@
                   >
                     <img
                       :src="require('@/assets/images/' + getSrc(item, open))"
-                      height="32px"
-                      width="32px"
+                      height="24px"
+                      width="24px"
                     />
                     <div style="margin-left: 3px; font-weight: bold">
                       {{ item.Name }}
@@ -184,8 +180,8 @@
                   <div v-else class="treeNode">
                     <img
                       :src="require('@/assets/images/' + getSrc(item, open))"
-                      height="32px"
-                      width="32px"
+                      height="24px"
+                      width="24px"
                     />
                     <div style="margin-left: 3px; font-weight: bold">
                       {{ item.Name }}
@@ -230,7 +226,7 @@ export default {
     movedTypes: {
       type: Array,
       default: function () {
-        return ["FREEZER", "SHELF", "RACK", "ROW"];
+        return ["FREEZER", "SHELF", "RACK", "ROW",1011,1012,1013,1014];
       },
     },
     movedCondition: {
@@ -264,22 +260,22 @@ export default {
     showFilterPanel: null,
   }),
   computed: {
-   filtrDiscr(){
-   var fd=""
-   if(this.filterString){
-     fd+= " Locacion:"+this.filterString+";"
-   }
-    if(this.barcodeFilterString){
-     fd+= " Barkode:"+this.barcodeFilterString+";"
-   }  
-    if(this.onlyEmpty){
-     fd+= " Only empty;"
-   }     if(this.onlyFilled){
-     fd+= " Only filled;"
-   }
-   return fd;
-   }
-,
+    filtrDiscr() {
+      var fd = "";
+      if (this.filterString) {
+        fd += " Locacion:" + this.filterString + ";";
+      }
+      if (this.barcodeFilterString) {
+        fd += " Barkode:" + this.barcodeFilterString + ";";
+      }
+      if (this.onlyEmpty) {
+        fd += " Only empty;";
+      }
+      if (this.onlyFilled) {
+        fd += " Only filled;";
+      }
+      return fd;
+    },
     RecommendedNodeName() {
       if (this.editItem) {
         if (this.editItem.Code == "FREEZER") {
@@ -296,6 +292,9 @@ export default {
       return "new node name";
     },
     filtredItems() {
+       localStorage.setItem("filterString" + this.treeNum, this.filterString);
+       localStorage.setItem("barcodeFilterString" + this.treeNum,this.barcodeFilterString);
+
       if (!this.initialTree.Name) return [];
       let _tree = this.initialTree;
 
@@ -307,16 +306,19 @@ export default {
       }
       let filtred = _tree.children;
       if (this.filterString) {
-         var filterString=this.filterString.toLowerCase();
-        localStorage.setItem("filterString" + this.treeNum, this.filterString);
-        filtred = getFiltredTree(filtred, filterString,this.nameFunction);
-       }  
+        var filterString = this.filterString.toLowerCase();
+       
+        filtred = getFiltredTree(filtred, filterString, this.nameFunction);
+      }
       if (this.barcodeFilterString) {
-        var barcodeFilterString=this.barcodeFilterString.toLowerCase();
-        localStorage.setItem("barcodeFilterString" + this.treeNum, this.barcodeFilterString);
-        filtred = getFiltredTree(filtred, barcodeFilterString,this.barcodeFunction);
-       }    
-      if(this.filterString||this.barcodeFilterString)
+        var barcodeFilterString = this.barcodeFilterString.toLowerCase();
+        filtred = getFiltredTree(
+          filtred,
+          barcodeFilterString,
+          this.barcodeFunction
+        );
+      }
+      if (this.filterString || this.barcodeFilterString)
         this.$nextTick(function () {
           this.$refs.treeView.updateAll(true);
         });
@@ -324,20 +326,25 @@ export default {
     },
   },
   methods: {
-  nameFunction(item,filterString){
-  return item.Name.toLowerCase().includes(filterString);
-  },
-  barcodeFunction(item,filterString){
-
- for (const key in item.Content) {
-     const element = item.Content[key];
-    if(element.barcode.toLowerCase().includes(filterString)){
-      return true;
-    }
-
- }
-  return false;
-  }, 
+    nameFunction(item, filterString) {
+      return item.Name.toLowerCase().includes(filterString);
+    },
+    barcodeFunction(item, filterString) {
+      if (item.Content)
+        for (const key in item.Content) {
+          const element = item.Content[key];
+          if (element.barcode) {
+            return element.barcode.toLowerCase().includes(filterString);
+          } else {
+            return element.Name.toLowerCase().includes(filterString);
+          }
+        }
+      else {
+        console.log("ata-ta");
+        return item.Name.toLowerCase().includes(filterString);
+      }
+      return false;
+    },
     onlyEmptyChanged() {
       if (this.onlyEmpty) this.onlyFilled = false;
     },
@@ -360,7 +367,7 @@ export default {
         options.push({ name: "Clear all samples", slug: "clear" });
         options.push({ name: "Show all samples", slug: "showSamples" });
       }
-      if (item.Code == "ROW") {
+      if (item.Code == "RACK" || item.Code == "SHELF" || item.Code == "ROW") {
         options.push({ name: "Add samples", slug: "addSamples" });
       }
       if (item.Code == "FREEZER") {
@@ -376,7 +383,10 @@ export default {
 
       if (
         !hasContent &&
-        (item.Code == "RACK" || item.Code == "SHELF" || item.Code == "ROW")
+        (item.Code == "RACK" ||
+          item.Code == "SHELF" ||
+          item.Code == "ROW" ||
+          item.Code == "")
       ) {
         options.push({ name: "Delete " + item.Name, slug: "delete" });
       }
@@ -435,6 +445,13 @@ export default {
       if (item.Code == "ROOM") img = "room.png";
       if (item.Code == "RACK") img = "Rows.png";
       if (item.Code == "ROW") img = "row.png";
+      if(item.ModelId==1014) img = "box.png";
+      if(item.ModelId==1013) img = "plate.png" 
+       if(item.ModelId==1011||item.ModelId==1012) img = "tube.png" 
+  //     if(img == "folder.png")  
+        {
+         console.log(img)
+       }       
       return img;
     },
     clear(item) {
@@ -493,7 +510,8 @@ export default {
     },
     CanMove(item) {
       if (item) {
-        if (this.movedTypes.includes(item.Code)) {
+        if (this.movedTypes.includes(item.Code)||this.movedTypes.includes(item.ModelId)) 
+        {
           var canMove = this.movedCondition(item);
           return canMove;
         }
@@ -557,27 +575,10 @@ export default {
     var menu = document.getElementById(this.contentMenuId);
     document.firstElementChild.appendChild(menu);
 
-    // var savedVal = localStorage.getItem("onlyEmpty" + this.treeNum);
-    // if (savedVal != null) {
-    //   this.onlyEmpty = savedVal;
-    // } else {
-    //   this.onlyEmpty = this.intitalOnlyEmpty;
-    // }
-    //  savedVal = localStorage.getItem("onlyFilled" + this.treeNum);
-    // if (savedVal != null) {
-    //   this.onlyFilled = savedVal;
-    // } else {
-    //   this.onlyFilled = this.intitalOnlyFilled;
-    // }
+    this.filterString = localStorage.getItem("filterString" + this.treeNum);
 
-   var  savedVal = localStorage.getItem("filterString" + this.treeNum);
-    if (savedVal != null) {
-      this.filterString = savedVal;
-    }
-     savedVal = localStorage.getItem("barcodeFilterString" + this.treeNum);
-    if (savedVal != null) {
-      this.barcodeFilterString = savedVal;
-    }
+    this.barcodeFilterString = localStorage.getItem("barcodeFilterString" + this.treeNum);
+
   },
 };
 </script>
@@ -671,9 +672,14 @@ export default {
 .v-text-field--box .v-input__control .v-input__slot,
 .v-text-field--outline .v-input__control .v-input__slot,
 .v-text-field .v-input__control .v-input__slot {
-  height: 20px;
+  height: 30px;
   display: flex !important;
   align-items: center !important;
   margin: 2px;
 }
+
+/* .v-treeview-node__root .v-treeview-node__content{
+height: 32x;margin: 0px;padding: 0px;
+} */
+
 </style>
