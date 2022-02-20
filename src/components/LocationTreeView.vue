@@ -104,12 +104,8 @@
                 <v-label>Location name:</v-label>
               </v-col>
               <v-col cols="8" class="shrink">
-                <v-text-field
-                  elevation="1"
-                  v-model="filterString"
-                  outlined
-                  hide-details="auto"
-                />
+                <!-- <v-text-field elevation="1" v-model="filterString" outlined hide-details="auto" /> -->
+                <input type="text" v-model="filterString" style="border:2px solid grey;width:100%"/>
               </v-col>
             </v-row>
             <v-row no-gutters>
@@ -117,21 +113,16 @@
                 <v-label>Barcode:</v-label>
               </v-col>
               <v-col cols="8" class="shrink">
-                <v-text-field
-                  elevation="1"
-                  v-model="barcodeFilterString"
-                  outlined
-                  hide-details="auto"
-                />
+                 <input type="text" v-model="barcodeFilterString" style="border:2px solid grey;width:100%; margin:3px;"/>
               </v-col>
             </v-row>
           </v-expansion-panel-content>
         </v-expansion-panel>
       </v-expansion-panels>
       <v-card-text>
-        <div style="margin-right: 3px; font-weight: bold" v-if="dragInProgress">
+        <!-- <div style="margin-right: 3px; font-weight: bold" v-if="dragInProgress">
           Drag in progress :
-        </div>
+        </div> -->
         <v-treeview
           style="height: 80vh; overflow-y: auto"
           :items="filtredItems"
@@ -327,7 +318,7 @@ export default {
   },
   methods: {
     nameFunction(item, filterString) {
-      return item.Name.toLowerCase().includes(filterString);
+      return item.Path.toLowerCase().includes(filterString);
     },
     barcodeFunction(item, filterString) {
       if (item.Content)
@@ -340,7 +331,6 @@ export default {
           }
         }
       else {
-        console.log("ata-ta");
         return item.Name.toLowerCase().includes(filterString);
       }
       return false;
@@ -448,10 +438,7 @@ export default {
       if(item.ModelId==1014) img = "box.png";
       if(item.ModelId==1013) img = "plate.png" 
        if(item.ModelId==1011||item.ModelId==1012) img = "tube.png" 
-  //     if(img == "folder.png")  
-        {
-         console.log(img)
-       }       
+     
       return img;
     },
     clear(item) {
@@ -583,6 +570,11 @@ export default {
 };
 </script>
 <style>
+input{
+border:2px solid grey;width:100%; margin:3px;
+border-radius: 3px;  
+}
+
 .treeNode {
   height: 30px;
   margin: 20px 10px;

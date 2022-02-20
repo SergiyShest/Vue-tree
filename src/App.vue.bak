@@ -41,7 +41,7 @@ export default {
 
   data: () => ({
     initialTree: tree2,
-
+    
   }),
  
   methods: {
@@ -55,23 +55,7 @@ export default {
           if (sourseItem.Code == "ROW" && targetItem.Code == "RACK") {
             return true;
           }
-
-         if (sourseItem.Code == "SHELF" && targetItem.Code == "SHELF") {
-            return true;
-          }
-          if (sourseItem.Code == "RACK" && targetItem.Code == "RACK") {
-            return true;
-          }
-          if (sourseItem.Code == "ROW" && targetItem.Code == "ROW") {
-            return true;
-          } 
-          if (sourseItem.ModelId && (targetItem.Code == "ROW"||  targetItem.Code == "RACK" || targetItem.Code == "SHELF"|| targetItem.Code == "")) {
-            return true;
-          }          
-          
-
- },
-  
+ },   
 loadTree(){}
   },
   mounted: function () {
