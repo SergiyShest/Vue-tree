@@ -1,5 +1,5 @@
 <template>
-  <div>{{openIds}}{{active}}
+  <div>
     <vue-simple-context-menu
       :elementId="contentMenuId"
       :options="contextMenuItems"
@@ -105,12 +105,7 @@
               </v-col>
               <v-col cols="8" class="shrink">
                 <!-- <v-text-field elevation="1" v-model="filterString" outlined hide-details="auto" /> -->
-                <input
-                  type="text"
-                  v-model="filterString"
-                  v-on="changeFilterString"
-                  style="border: 2px solid grey; width: 100%"
-                />
+                <input type="text" v-model="filterString" style="border:2px solid grey;width:100%"/>
               </v-col>
             </v-row>
             <v-row no-gutters>
@@ -118,12 +113,7 @@
                 <v-label>Barcode:</v-label>
               </v-col>
               <v-col cols="8" class="shrink">
-                <input
-                  type="text"
-                  v-model="barcodeFilterString"
-                  v-on="changeFilterString"
-                  style="border: 2px solid grey; width: 100%; margin: 3px"
-                />
+                 <input type="text" v-model="barcodeFilterString" style="border:2px solid grey;width:100%; margin:3px;"/>
               </v-col>
             </v-row>
           </v-expansion-panel-content>
@@ -139,20 +129,13 @@
           activatable
           item-key="Id"
           ref="treeView"
-          :active.sync="active"
-          :open.sync="openIds"
           open-on-click
         >
           <template v-slot:prepend="{ item, open }">
             <v-row
-              v-on:dblclick="dblclick(item)"
-              v-on:click="detectClick(item)"
               style="align-items: center"
               @contextmenu.prevent.stop="handleContextMenu($event, item)"
             >
-              <div style="margin-right: 3px; font-weight: bold">
-                {{ item.Id }}
-              </div>
               <div>
                 <drag
                   v-if="CanMove(item)"
@@ -218,7 +201,6 @@ import {
   getFilledTree,
   getFiltredTree,
   generateGuid,
-  pathById,
 } from "./ArrayFunctions.js";
 export default {
   mixins: [baseMixin, DragAwareMixin],
@@ -232,20 +214,16 @@ export default {
     treeNum: { type: [String, Number] },
     initialTree: Object,
     title: String,
-    activeId: Number,
     movedTypes: {
       type: Array,
       default: function () {
         return ["FREEZER", "SHELF", "RACK", "ROW",1011,1012,1013,1014];
       },
-    
-    
     },
-    
     movedCondition: {
       type: Function,
       default: function (item) {
-        return false;
+        return true;
       },
     },
     targetCondition: {
@@ -271,8 +249,6 @@ export default {
     onlyEmpty: false,
     onlyFilled: false,
     showFilterPanel: null,
-    openIds:[],
-    active:[]
   }),
   computed: {
     filtrDiscr() {
@@ -307,7 +283,9 @@ export default {
       return "new node name";
     },
     filtredItems() {
-  
+       localStorage.setItem("filterString" + this.treeNum, this.filterString);
+       localStorage.setItem("barcodeFilterString" + this.treeNum,this.barcodeFilterString);
+
       if (!this.initialTree.Name) return [];
       let _tree = this.initialTree;
 
@@ -338,29 +316,7 @@ export default {
       return filtred;
     },
   },
-  watch:{
-     activeId(val)
-     {if(val)
-
-      this.filterString = "";
-      this.barcodeFilterString="";
-      this.onlyEmpty= false;
-      this.onlyFilled= false; 
-
-      this.openIds = pathById(this.initialTree,val);
-
-      this.active=[val];
-
-     } 
-  },
   methods: {
-    changeFilterString() {
-      localStorage.setItem("filterString" + this.treeNum, this.filterString);
-      localStorage.setItem(
-        "barcodeFilterString" + this.treeNum,
-        this.barcodeFilterString
-      );
-    },
     nameFunction(item, filterString) {
       return item.Path.toLowerCase().includes(filterString);
     },
@@ -479,17 +435,14 @@ export default {
       if (item.Code == "ROOM") img = "room.png";
       if (item.Code == "RACK") img = "Rows.png";
       if (item.Code == "ROW") img = "row.png";
-      if (item.ModelId == 1014) img = "box.png";
-      if (item.ModelId == 1013) img = "plate.png";
-      if (item.ModelId == 1011 || item.ModelId == 1012) img = "tube.png";
-
+      if(item.ModelId==1014) img = "box.png";
+      if(item.ModelId==1013) img = "plate.png" 
+       if(item.ModelId==1011||item.ModelId==1012) img = "tube.png" 
+     
       return img;
     },
     clear(item) {
-     this.fetch(
-        this.ok,
-        "/Location/ManageLocation/Clear?locationId=" + item.Id
-      );
+      this.fetch(this.ok, "/Location/EditLocation/Clear?locationId=" + item.Id);
     },
     ShowAddChaildDialog(item) {
       this.editItem = item;
@@ -501,7 +454,7 @@ export default {
       this.addNodeDialog = false;
       this.fetch(
         this.ok,
-        "/Location/ManageLocation/addChaild?locationId=" +
+        "/Location/EditLocation/addChaild?locationId=" +
           this.editItem.Id +
           "&name=" +
           this.newNodeName
@@ -516,7 +469,7 @@ export default {
       this.renameDialog = false;
       this.fetch(
         this.ok,
-        "/Location/ManageLocation/Rename?locationId=" +
+        "/Location/EditLocation/Rename?locationId=" +
           this.editItem.Id +
           "&name=" +
           this.newNodeName
@@ -526,7 +479,7 @@ export default {
       this.renameDialog = false;
       this.fetch(
         this.ok,
-        "/Location/ManageLocation/DeleteNode?locationId=" + item.Id
+        "/Location/EditLocation/DeleteNode?locationId=" + item.Id
       );
     },
     ok(item) {
@@ -544,10 +497,8 @@ export default {
     },
     CanMove(item) {
       if (item) {
-       if (
-          this.movedTypes.includes(item.Code) ||
-          this.movedTypes.includes(item.ModelId)
-        ) {
+        if (this.movedTypes.includes(item.Code)||this.movedTypes.includes(item.ModelId)) 
+        {
           var canMove = this.movedCondition(item);
           return canMove;
         }
@@ -567,7 +518,7 @@ export default {
       this.changeLocation(e.data, item);
       // this.fetch(
       //   this.ok,
- //"/Location/ManageLocation/Drop?targetLocationId=" +
+      //   "/Location/EditLocation/Drop?targetLocationId=" +
       //     item.Id +
       //     "&sourceLocationId=" +
       //     e.data.Id
@@ -588,26 +539,12 @@ export default {
       }
       return false;
     },
-    detectClick(item) {
-      this.$emit("selected", item);
-       if (item.Code == "SHELF" || item.Code == "RACK" || item.Code == "ROW"|| item.Code == "") {
-         this.active = [item.Id];
-       }
-       else this.active = [];
-    },
-    dblclick(item) {
-      this.$emit("dblClickNode", item);
-    },
-  onOpen(items) {
-    console.log(items) ;
-  }
-
   },
   mounted: function () {
     window.globalEvent.$on(varName, (locationId, ids) => {
       this.fetch(
         this.ok,
-        "/Location/ManageLocation/AddSamples?locationId=" +
+        "/Location/EditLocation/AddSamples?locationId=" +
           locationId +
           "&ids=" +
           ids

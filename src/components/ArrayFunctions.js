@@ -186,3 +186,17 @@ export function generateGuid() { // Public Domain/MIT
   });
 }
 
+export function pathById(item, id) {
+  if (item.Id == id) return [id];
+  if (item.children) {
+    for (let index = 0; index < item.children.length; index++) {
+      let innArr = pathById(item.children[index],id);
+      if(innArr.length>0){
+      innArr.push(item.Id);
+      return innArr;
+      }
+    }
+  }
+  return[];
+}
+
