@@ -200,3 +200,19 @@ export function pathById(item, id) {
   return[];
 }
 
+export function pathByCode(item, code) {
+  if (item.Code == code) { return [-1];}
+  let ret=[]
+  if (item.children) {
+    for (let index = 0; index < item.children.length; index++) {
+     const inner_ret = pathByCode(item.children[index],code);
+     ret=ret.concat(inner_ret);
+    }
+  }
+   if(ret.length>0){
+        ret.push(item.Id);
+   }
+  return ret;
+}
+
+

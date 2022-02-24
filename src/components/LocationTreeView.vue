@@ -1,5 +1,6 @@
 <template>
-  <div>{{openIds}}{{active}}
+  <div>
+    {{ openIds }}{{ active }}
     <vue-simple-context-menu
       :elementId="contentMenuId"
       :options="contextMenuItems"
@@ -93,22 +94,24 @@
                 v-on:change="onlyFilledChanged"
                 label="only filled"
               />
-              <v-checkbox
-                v-model="openAll"
-                v-on:change="openAllChanged"
-                label="open all"
-              />
+              <div style="width: 110px">
+                <v-select
+                  v-model="openByLevel"
+                  v-on:change="openAllChanged"
+                  :items="['None', 'Freezer', 'Shelf', 'Rack', 'Row', 'All']"
+                  label="open by level"
+                />
+              </div>
             </v-row>
             <v-row no-gutters>
               <v-col cols="3" class="d-flex justify-start align-center">
                 <v-label>Location name:</v-label>
               </v-col>
               <v-col cols="8" class="shrink">
-                <!-- <v-text-field elevation="1" v-model="filterString" outlined hide-details="auto" /> -->
                 <input
                   type="text"
                   v-model="filterString"
-                  v-on="changeFilterString"
+                  v-on:change="changeFilterString"
                   style="border: 2px solid grey; width: 100%"
                 />
               </v-col>
@@ -121,7 +124,7 @@
                 <input
                   type="text"
                   v-model="barcodeFilterString"
-                  v-on="changeFilterString"
+                  v-on:change="changeFilterString"
                   style="border: 2px solid grey; width: 100%; margin: 3px"
                 />
               </v-col>
@@ -219,6 +222,7 @@ import {
   getFiltredTree,
   generateGuid,
   pathById,
+  pathByCode,
 } from "./ArrayFunctions.js";
 export default {
   mixins: [baseMixin, DragAwareMixin],
@@ -236,12 +240,10 @@ export default {
     movedTypes: {
       type: Array,
       default: function () {
-        return ["FREEZER", "SHELF", "RACK", "ROW",1011,1012,1013,1014];
+        return ["FREEZER", "SHELF", "RACK", "ROW", 1011, 1012, 1013, 1014];
       },
-    
-    
     },
-    
+
     movedCondition: {
       type: Function,
       default: function (item) {
@@ -263,7 +265,7 @@ export default {
     renameDialog: false,
     locationSource: null,
     locationTarget: null,
-    openAll: false,
+    openByLevel: "Row",
     contentMenuId: generateGuid(),
     contextMenuItems: [],
     filterString: "",
@@ -271,8 +273,8 @@ export default {
     onlyEmpty: false,
     onlyFilled: false,
     showFilterPanel: null,
-    openIds:[],
-    active:[]
+    openIds: [],
+    active: [],
   }),
   computed: {
     filtrDiscr() {
@@ -307,7 +309,6 @@ export default {
       return "new node name";
     },
     filtredItems() {
-  
       if (!this.initialTree.Name) return [];
       let _tree = this.initialTree;
 
@@ -320,7 +321,7 @@ export default {
       let filtred = _tree.children;
       if (this.filterString) {
         var filterString = this.filterString.toLowerCase();
-       
+
         filtred = getFiltredTree(filtred, filterString, this.nameFunction);
       }
       if (this.barcodeFilterString) {
@@ -333,25 +334,22 @@ export default {
       }
       if (this.filterString || this.barcodeFilterString)
         this.$nextTick(function () {
-          this.$refs.treeView.updateAll(true);
+          this.openItemsByLevel(filtred);
         });
       return filtred;
     },
   },
-  watch:{
-     activeId(val)
-     {if(val)
+  watch: {
+    activeId(val) {
+      if (val) this.filterString = "";
+      this.barcodeFilterString = "";
+      this.onlyEmpty = false;
+      this.onlyFilled = false;
 
-      this.filterString = "";
-      this.barcodeFilterString="";
-      this.onlyEmpty= false;
-      this.onlyFilled= false; 
+      this.openIds = pathById(this.initialTree, val);
 
-      this.openIds = pathById(this.initialTree,val);
-
-      this.active=[val];
-
-     } 
+      this.active = [val];
+    },
   },
   methods: {
     changeFilterString() {
@@ -386,8 +384,27 @@ export default {
       if (this.onlyFilled) this.onlyEmpty = false;
     },
     openAllChanged() {
-      this.$refs.treeView.updateAll(this.openAll);
+      this.openItemsByLevel(this.filtredItems);
     },
+
+    openItemsByLevel(items) {
+      switch (this.openByLevel) {
+        case "All":
+          this.$refs.treeView.updateAll(true);
+          break;
+        case "None":
+          this.$refs.treeView.updateAll(false);
+          break;
+        default:
+          let ret = [];
+          var code = this.openByLevel.toUpperCase();
+          for (let index = 0; index < items.length; index++) {
+            ret = ret.concat(pathByCode(items[index], code));
+          }
+          this.openIds = ret;
+      }
+    },
+
     handleContextMenu(event, item) {
       this.$refs.contextMenu.options = this.GetContextMenuItems(item);
 
@@ -486,7 +503,7 @@ export default {
       return img;
     },
     clear(item) {
-     this.fetch(
+      this.fetch(
         this.ok,
         "/Location/ManageLocation/Clear?locationId=" + item.Id
       );
@@ -544,7 +561,7 @@ export default {
     },
     CanMove(item) {
       if (item) {
-       if (
+        if (
           this.movedTypes.includes(item.Code) ||
           this.movedTypes.includes(item.ModelId)
         ) {
@@ -559,7 +576,6 @@ export default {
       if (this.dragInProgress)
         if (item) {
           return this.targetCondition(this.dragData, item);
-
         }
       return false;
     },
@@ -567,7 +583,7 @@ export default {
       this.changeLocation(e.data, item);
       // this.fetch(
       //   this.ok,
- //"/Location/ManageLocation/Drop?targetLocationId=" +
+      //"/Location/ManageLocation/Drop?targetLocationId=" +
       //     item.Id +
       //     "&sourceLocationId=" +
       //     e.data.Id
@@ -590,18 +606,21 @@ export default {
     },
     detectClick(item) {
       this.$emit("selected", item);
-       if (item.Code == "SHELF" || item.Code == "RACK" || item.Code == "ROW"|| item.Code == "") {
-         this.active = [item.Id];
-       }
-       else this.active = [];
+      if (
+        item.Code == "SHELF" ||
+        item.Code == "RACK" ||
+        item.Code == "ROW" ||
+        item.Code == ""
+      ) {
+        this.active = [item.Id];
+      } else this.active = [];
     },
     dblclick(item) {
       this.$emit("dblClickNode", item);
     },
-  onOpen(items) {
-    console.log(items) ;
-  }
-
+    onOpen(items) {
+      console.log(items);
+    },
   },
   mounted: function () {
     window.globalEvent.$on(varName, (locationId, ids) => {
@@ -619,15 +638,18 @@ export default {
 
     this.filterString = localStorage.getItem("filterString" + this.treeNum);
 
-    this.barcodeFilterString = localStorage.getItem("barcodeFilterString" + this.treeNum);
-
+    this.barcodeFilterString = localStorage.getItem(
+      "barcodeFilterString" + this.treeNum
+    );
   },
 };
 </script>
 <style>
-input{
-border:2px solid grey;width:100%; margin:3px;
-border-radius: 3px;  
+input {
+  border: 2px solid grey;
+  width: 100%;
+  margin: 3px;
+  border-radius: 3px;
 }
 
 .treeNode {
@@ -725,8 +747,11 @@ border-radius: 3px;
   margin: 2px;
 }
 
-/* .v-treeview-node__root .v-treeview-node__content{
-height: 32x;margin: 0px;padding: 0px;
-} */
-
+.select.v-text-field.v-text-field--enclosed:not(.v-text-field--dense)
+  > .v-input__control
+  > .v-input__slot {
+  width: 40px;
+  padding-right: 2px;
+  overflow: hidden;
+}
 </style>

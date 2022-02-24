@@ -11,7 +11,7 @@
             @refresh="loadTree"
           />
         </v-col>
-        <v-divider vertical></v-divider>
+        <!--<v-divider vertical></v-divider>
         <v-col>
           <location-tree-view
             :treeNum="2"
@@ -20,8 +20,8 @@
             :movedTypes="[]"
             :targetCondition="targetCondition"
             @refresh="loadTree"
-          />
-        </v-col>
+          /> 
+        </v-col>-->
       </v-row>
     </v-container>
 
