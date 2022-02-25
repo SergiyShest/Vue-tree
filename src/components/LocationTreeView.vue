@@ -340,20 +340,25 @@ export default {
   },
   watch: {
     activeId(val) {
-      if (val) this.filterString = "";
-      this.barcodeFilterString = "";
-      this.onlyEmpty = false;
-      this.onlyFilled = false;
+      if (val) {
+        this.filterString = "";
+        this.barcodeFilterString = "";
+        this.onlyEmpty = false;
+        this.onlyFilled = false;
 
-      this.openIds = pathById(this.initialTree, val);
+        this.openIds = pathById(this.initialTree, val);
 
-      this.active = [val];
+        this.active = [val];
+      }
     },
   },
   methods: {
     changeFilterString() {
       localStorage.setItem("filterString" + this.treeNum, this.filterString);
-      localStorage.setItem("barcodeFilterString" + this.treeNum, this.barcodeFilterString);
+      localStorage.setItem(
+        "barcodeFilterString" + this.treeNum,
+        this.barcodeFilterString
+      );
     },
     nameFunction(item, filterString) {
       return item.Path.toLowerCase().includes(filterString);
@@ -380,7 +385,7 @@ export default {
       if (this.onlyFilled) this.onlyEmpty = false;
     },
     openAllChanged() {
-       localStorage.setItem("openByLevel" + this.treeNum, this.openByLevel);
+      localStorage.setItem("openByLevel" + this.treeNum, this.openByLevel);
       this.openItemsByLevel(this.filtredItems);
     },
 
@@ -634,13 +639,15 @@ export default {
     document.firstElementChild.appendChild(menu);
 
     this.filterString = localStorage.getItem("filterString" + this.treeNum);
-    this.barcodeFilterString = localStorage.getItem(      "barcodeFilterString" + this.treeNum);
-    
-    const openByLevel=localStorage.getItem("openByLevel" + this.treeNum);
-    if(openByLevel){this.openByLevel=openByLevel;
-         this.openItemsByLevel(this.filtredItems);
+    this.barcodeFilterString = localStorage.getItem(
+      "barcodeFilterString" + this.treeNum
+    );
+
+    const openByLevel = localStorage.getItem("openByLevel" + this.treeNum);
+    if (openByLevel) {
+      this.openByLevel = openByLevel;
+      this.openItemsByLevel(this.filtredItems);
     }
-    
   },
 };
 </script>
@@ -745,13 +752,5 @@ input {
   display: flex !important;
   align-items: center !important;
   margin: 2px;
-}
-
-.select.v-text-field.v-text-field--enclosed:not(.v-text-field--dense)
-  > .v-input__control
-  > .v-input__slot {
-  width: 40px;
-  padding-right: 2px;
-  overflow: hidden;
 }
 </style>
