@@ -1,6 +1,5 @@
 <template>
   <div>
-    {{ openIds }}{{ active }}
     <vue-simple-context-menu
       :elementId="contentMenuId"
       :options="contextMenuItems"
@@ -265,7 +264,7 @@ export default {
     renameDialog: false,
     locationSource: null,
     locationTarget: null,
-    openByLevel: "Row",
+    openByLevel: "Freezer",
     contentMenuId: generateGuid(),
     contextMenuItems: [],
     filterString: "",
@@ -354,10 +353,7 @@ export default {
   methods: {
     changeFilterString() {
       localStorage.setItem("filterString" + this.treeNum, this.filterString);
-      localStorage.setItem(
-        "barcodeFilterString" + this.treeNum,
-        this.barcodeFilterString
-      );
+      localStorage.setItem("barcodeFilterString" + this.treeNum, this.barcodeFilterString);
     },
     nameFunction(item, filterString) {
       return item.Path.toLowerCase().includes(filterString);
@@ -384,6 +380,7 @@ export default {
       if (this.onlyFilled) this.onlyEmpty = false;
     },
     openAllChanged() {
+       localStorage.setItem("openByLevel" + this.treeNum, this.openByLevel);
       this.openItemsByLevel(this.filtredItems);
     },
 
@@ -637,10 +634,13 @@ export default {
     document.firstElementChild.appendChild(menu);
 
     this.filterString = localStorage.getItem("filterString" + this.treeNum);
-
-    this.barcodeFilterString = localStorage.getItem(
-      "barcodeFilterString" + this.treeNum
-    );
+    this.barcodeFilterString = localStorage.getItem(      "barcodeFilterString" + this.treeNum);
+    
+    const openByLevel=localStorage.getItem("openByLevel" + this.treeNum);
+    if(openByLevel){this.openByLevel=openByLevel;
+         this.openItemsByLevel(this.filtredItems);
+    }
+    
   },
 };
 </script>
